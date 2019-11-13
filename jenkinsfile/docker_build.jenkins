@@ -1,0 +1,23 @@
+#!groovy
+// Check ub1 properties
+properties([disableConcurrentBuilds()])
+
+pipeline {
+    agent { 
+        label 'master'
+        }
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
+        timestamps()
+    }
+    
+        stage("Create docker image") {
+            steps {
+                echo "============start bild image============"
+                dir ('docker/toolbox') {
+                    sh 'docker build .'
+                }
+            }
+        }
+    }
+}
