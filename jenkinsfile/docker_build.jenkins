@@ -11,13 +11,31 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
         timestamps()
     }
-    
     stages {
+        stage("docker login") {
+            steps{
+                echo " ========== docker run =============="
+                withCredentials([usernamePassword(credentialsId: 'dockerhab_ivonind', usernameVariable: 'USERNAME',passwordVariable: 'PASSWORD')]) {
+                    sh """
+                    docker login -u $USERNAME -p $PASSWORD
+                    """
+                }
+            }
+        }
         stage("Create docker image") {
             steps {
                 echo "============ start bild image ============"
                 dir ('docker/toolbox') {
                         sh 'docker build -t toolbox:latest .'
+                }
+            }
+        }
+         stage("docker push") {
+            steps {
+                echo "============ start pushing image ============"
+                sh '''
+                docker push ivonind/toolbox:latest
+                '''
                 }
             }
         }
